@@ -70,3 +70,9 @@ section_with_kubectl:
     - template: template2.yaml.j2
     - template: template3.yaml.j2
     - template: innerdir/template1.yaml.j2
+
+test_tags_unexpected_type:
+  templates:
+    - template: template1.yaml.j2
+      tags:
+        tag: "type-error"
