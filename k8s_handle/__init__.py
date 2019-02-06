@@ -90,8 +90,8 @@ def main():
     settings.CHECK_STATUS_TIMEOUT = args.get('retry_delay')
     settings.CHECK_DAEMONSET_STATUS_TIMEOUT = args.get('retry_delay')
     settings.GET_ENVIRON_STRICT = args.get('strict')
-    settings.ONLY_TAGS = args['tags']
-    settings.SKIP_TAGS = args['skip_tags']
+    settings.ONLY_TAGS = args.get('tags')
+    settings.SKIP_TAGS = args.get('skip_tags')
     settings.COUNT_LOG_LINES = args.get('tail_lines')
     settings.CONFIG_FILE = args.get('config') or settings.CONFIG_FILE
 

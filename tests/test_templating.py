@@ -104,32 +104,20 @@ class TestTemplating(unittest.TestCase):
 
     def test_evaluate_tags(self):
         r = templating.Renderer(os.path.join(os.path.dirname(__file__), 'templates_tests'))
-        template = {
-            'template': 'template.yaml.j2',
-            'tags': ['tag1', 'tag2', 'tag3'],
-        }
-        assert r._evaluate_tags(template, only_tags=['tag1'], skip_tags=None) is True
-        assert r._evaluate_tags(template, only_tags=['tag4'], skip_tags=None) is False
-        assert r._evaluate_tags(template, only_tags=['tag1'], skip_tags=['tag1']) is False
-        assert r._evaluate_tags(template, only_tags=None, skip_tags=['tag1']) is False
-        assert r._evaluate_tags(template, only_tags=None, skip_tags=['tag4']) is True
+        tags = {'tag1', 'tag2', 'tag3'}
+        assert r._evaluate_tags(tags, only_tags=['tag1'], skip_tags=None) is True
+        assert r._evaluate_tags(tags, only_tags=['tag4'], skip_tags=None) is False
+        assert r._evaluate_tags(tags, only_tags=['tag1'], skip_tags=['tag1']) is False
+        assert r._evaluate_tags(tags, only_tags=None, skip_tags=['tag1']) is False
+        assert r._evaluate_tags(tags, only_tags=None, skip_tags=['tag4']) is True
 
-    def test_filter_tagged_templates(self):
+    def test_get_template_tags(self):
         r = templating.Renderer(os.path.join(os.path.dirname(__file__), 'templates_tests'))
-        templates = [
-            {'template': 'template.yaml.j2', 'tags': ['tag1', 'tag2', 'tag3']},
-            {'template': 'template.yaml.j2', 'tags': 'tag1,tag2,tag3'},
-            {'template': 'template.yaml.j2', 'tags': ['tag1']},
-            {'template': 'template.yaml.j2', 'tags': 'tag1'},
-        ]
-        assert r._filter_tagged_templates(templates, only_tags=['tag1'], skip_tags=None) == templates
-        assert r._filter_tagged_templates(templates, only_tags=['tag0'], skip_tags=None) == []
-        assert r._filter_tagged_templates(templates, only_tags=['tag3'], skip_tags=None) == templates[:2]
-        assert r._filter_tagged_templates(templates, only_tags=None, skip_tags=['tag1']) == []
-
-    def test_generate_templates_with_tags_unexpected_type(self):
-        r = templating.Renderer(os.path.join(os.path.dirname(__file__), 'templates_tests'))
-        with self.assertRaises(TypeError) as context:
-            c = config.load_context_section('test_tags_unexpected_type')
-            r.generate_by_context(c)
-        self.assertTrue('unexpected type' in str(context.exception))
+        template_1 = {'template': 'template.yaml.j2', 'tags': ['tag1', 'tag2', 'tag3']}
+        template_2 = {'template': 'template.yaml.j2', 'tags': 'tag1,tag2,tag3'}
+        template_3 = {'template': 'template.yaml.j2', 'tags': ['tag1']}
+        template_4 = {'template': 'template.yaml.j2', 'tags': 'tag1'}
+        assert r._get_template_tags(template_1) == {'tag1', 'tag2', 'tag3'}
+        assert r._get_template_tags(template_2) == {'tag1', 'tag2', 'tag3'}
+        assert r._get_template_tags(template_3) == {'tag1'}
+        assert r._get_template_tags(template_4) == {'tag1'}

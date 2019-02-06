@@ -102,7 +102,12 @@ class Renderer:
             if len(templates) == 0:
                 return
 
-        templates = self._filter_tagged_templates(templates, settings.ONLY_TAGS, settings.SKIP_TAGS)
+        templates = filter(
+            lambda i: self._evaluate_tags(self._get_template_tags(i),
+                                          settings.ONLY_TAGS,
+                                          settings.SKIP_TAGS),
+            templates
+        )
 
         output = []
         for template in templates:
@@ -116,26 +121,23 @@ class Renderer:
                 raise TemplateRenderingError('Unable to render {}, due to: {}'.format(template, e))
         return output
 
-    def _filter_tagged_templates(self, templates, only_tags, skip_tags):
-        return [i for i in templates if self._evaluate_tags(i, only_tags, skip_tags)]
+    def _get_template_tags(self, template):
+        if 'tags' not in template:
+            return set(['untagged'])
 
-    def _evaluate_tags(self, template, only_tags, skip_tags):
-        if 'tags' in template:
-            tags = template['tags']
+        tags = template['tags']
 
-            if isinstance(tags, list):
-                tags = set([i for i, _ in itertools.groupby(tags)])
-            elif isinstance(tags, str):
-                if tags.find(',') != -1:
-                    tags = set(tags.split(','))
-                else:
-                    tags = set([tags])
-            else:
-                raise TypeError('Unable to parse tags of "{}" template: unexpected type {}'.format(template,
-                                                                                                   type(tags)))
+        if isinstance(tags, list):
+            tags = set([i for i, _ in itertools.groupby(tags)])
+        elif isinstance(tags, str):
+            tags = set(tags.split(','))
         else:
-            tags = set(['untagged'])
+            raise TypeError('Unable to parse tags of "{}" template: unexpected type {}'.format(template,
+                                                                                               type(tags)))
 
+        return tags
+
+    def _evaluate_tags(self, tags, only_tags, skip_tags):
         skip = False
 
         if only_tags:
