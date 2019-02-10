@@ -121,3 +121,10 @@ class TestTemplating(unittest.TestCase):
         assert r._get_template_tags(template_2) == {'tag1', 'tag2', 'tag3'}
         assert r._get_template_tags(template_3) == {'tag1'}
         assert r._get_template_tags(template_4) == {'tag1'}
+
+    def test_get_template_tags_unexpected_type(self):
+        r = templating.Renderer(os.path.join(os.path.dirname(__file__), 'templates_tests'))
+        template = {'template': 'template.yaml.j2', 'tags': {'tag': 'unexpected'}}
+        with self.assertRaises(TypeError) as context:
+            r._get_template_tags(template)
+        self.assertTrue('unexpected type' in str(context.exception))
